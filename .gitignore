@@ -1,0 +1,18 @@
+# folder
+INP/
+lib/
+x64/
+Intel/
+
+# library
+*.XSL
+*.xsc
+
+# etc
+.vs
+fort.*
+tpfh2o
+*.user
+*.u2d
+*.vtk
+*.rst
