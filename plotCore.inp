@@ -1,5 +1,5 @@
-ID_01        NT / prv_ND_NA_NM_P0
-ID_02        NT / now5_ND_NA_NM_P0
+ID_01        NT / C5G7_H_3D_FC_DIV_08_UR
+ID_02        NT / C5G7_H_3D_FC_DIV_08_RB
 plot_Err     T  2 ! Err. = plot obj - other obj
 cal_Rel      F
 tpos_2d      40 -55
@@ -7,8 +7,8 @@ tsize_2d     30
 gcf_2d       500 100 1100 820
 gca_2d       0.115 0.035 0.75 1.05
 xylim        2.
-!hgt          16*22.0625
-!zlim         2.
+hgt          24*1.785
+zlim         2.
 .
 
 ! 2-D

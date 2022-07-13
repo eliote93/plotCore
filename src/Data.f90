@@ -15,7 +15,9 @@ LOGICAL, DIMENSION(2) :: lHS, lrot
 INTEGER :: xstr2d, ystr2d, nsize2d, xstr1d, nsize1d, gcf2d(4), gcf1d(4)
 INTEGER :: plotobj, numthr, indev, nz, maRng, mPin
 
-INTEGER, DIMENSION(2) :: ninp, nxy, ndat, naRng, MCnPin, RNnPin
+INTEGER, DIMENSION(2) :: ninp, naRng, MCnPin, RNnPin
+INTEGER, DIMENSION(2) :: nxy  ! # of Rad. Pin
+INTEGER, DIMENSION(2) :: ndat ! # of 3-D Pin
 
 INTEGER, DIMENSION(100, 2) :: NTnPin
 
@@ -33,11 +35,9 @@ REAL, DIMENSION(100, 2) :: NTpF2F
 
 REAL, POINTER, DIMENSION(:) :: MCstd01 ! (idat)
 REAL, POINTER, DIMENSION(:) :: MCstd02 ! (idat)
-REAL, POINTER, DIMENSION(:) :: errmax  ! (iz)
-REAL, POINTER, DIMENSION(:) :: errrms  ! (iz)
+REAL, POINTER, DIMENSION(:) :: xyzmax  ! (iz), 3-D Err.
+REAL, POINTER, DIMENSION(:) :: xyzrms  ! (iz), 3-D Err.
 REAL, POINTER, DIMENSION(:) :: powpf   ! (iz)
-REAL, POINTER, DIMENSION(:) :: errxy   ! (ixy)
-REAL, POINTER, DIMENSION(:) :: errax   ! (iz)
 REAL, POINTER, DIMENSION(:) :: hgt     ! (iz)
 
 REAL, POINTER, DIMENSION(:,:) :: axpow  ! (iz, iobj)

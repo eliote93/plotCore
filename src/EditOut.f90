@@ -123,7 +123,7 @@ END SUBROUTINE editgrid
 SUBROUTINE editout()
 
 USE param, ONLY : FALSE, DOT
-USE mdat,  ONLY : indev, objfn, objcn, xstr2d, ystr2d, nsize2d, xstr1d, ystr1d, nsize1d, nxy, errmax, errrms, lerr, lrel, powpf, &
+USE mdat,  ONLY : indev, objfn, objcn, xstr2d, ystr2d, nsize2d, xstr1d, ystr1d, nsize1d, nxy, xyzmax, xyzrms, lerr, lrel, powpf, &
                   gcf2D, gca2D, gcf1d, gca1d, nz, l3d, xypf, axpf, xymax, axmax, xyrms, axrms, hgt, powerr, axpow, zlim, plotobj
 
 IMPLICIT NONE
@@ -142,7 +142,7 @@ IF (.NOT. l3d) THEN
   CALL echoinp(indev)
   
   WRITE (indev, '(I5, 3L2)') nxy(plotobj), lerr, lrel, l3d
-  WRITE (indev, '(3ES13.5)') powpf(1), errmax(1), errrms(1)
+  WRITE (indev, '(3ES13.5)') powpf(1), xyzmax(1), xyzrms(1)
   WRITE (indev, '(3I5)')     xstr2d, ystr2d, nsize2d
   WRITE (indev, '(4I5)')     gcf2D(1:4)
   WRITE (indev, '(4F6.3)')   gca2D(1:4)
@@ -152,11 +152,6 @@ IF (.NOT. l3d) THEN
   WRITE (indev, '(A1)') DOT
   
   CLOSE (indev)
-  
-  IF (lerr) THEN
-    WRITE (*, '(A31, F5.2, X, A3)') '2-D Power Error Max. : ', errmax(1), '(%)'
-    WRITE (*, '(A31, F5.2, X, A3)') '2-D Power Error RMS  : ', errrms(1), '(%)'
-  END IF
 END IF
 ! ------------------------------------------------
 IF (.NOT. l3d) RETURN
@@ -172,7 +167,7 @@ DO iz = 1, nz
   CALL echoinp(indev)
   
   WRITE (indev, '(I5, 3L2)') nxy(plotobj), lerr, lrel, l3d
-  WRITE (indev, '(3ES13.5)') powpf(iz), errmax(iz), errrms(iz)
+  WRITE (indev, '(3ES13.5)') powpf(iz), xyzmax(iz), xyzrms(iz)
   WRITE (indev, '(3I5)')     xstr2d, ystr2d, nsize2d
   WRITE (indev, '(4I5)')     gcf2D(1:4)
   WRITE (indev, '(4F6.3)')   gca2D(1:4)
@@ -215,16 +210,7 @@ ELSE
   END DO
 END IF
 
-! PRINT
-IF (lerr) THEN
-  WRITE (*, '(A31, F5.2, X, A3)') '2-D Power Error Max. : ', xymax, '(%)'
-  WRITE (*, '(A31, F5.2, X, A3)') '2-D Power Error RMS  : ', xyrms, '(%)'
-  WRITE (*, '(A31, F5.2, X, A3)') '1-D Power Error Max. : ', axmax, '(%)'
-  WRITE (*, '(A31, F5.2, X, A3)') '1-D Power Error RMS  : ', axrms, '(%)'
-END IF
-
 WRITE (indev, '(A1)') DOT
-
 CLOSE (indev)
 ! ------------------------------------------------
 

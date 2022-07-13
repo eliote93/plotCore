@@ -27,8 +27,8 @@
 		<Filter Name="Header Files" Filter="fi;fd;h;inc"/>
 		<Filter Name="Resource Files" Filter="rc;ico;cur;bmp;dlg;rc2;rct;bin;rgs;gif;jpg;jpeg;jpe"/>
 		<Filter Name="Source Files" Filter="f90;for;f;fpp;ftn;def;odl;idl">
+		<File RelativePath=".\src\CalPowErr_int.f90"/>
 		<File RelativePath=".\src\CalPowErr_3D.f90"/>
-		<File RelativePath=".\src\CalPowErr_Basic.f90"/>
 		<File RelativePath=".\src\Chkobj.f90"/>
 		<File RelativePath=".\src\Data.f90"/>
 		<File RelativePath=".\src\dmalloc.f90"/>

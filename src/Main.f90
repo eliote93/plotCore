@@ -18,8 +18,8 @@ CALL setmap
 
 CALL plotpow
 
-CALL calpowerr_basic
 CALL calpowerr_3D
+CALL calpowerr_int
 
 CALL editout
 !CALL editinfo
