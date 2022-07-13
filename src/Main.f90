@@ -22,5 +22,7 @@ CALL calpowerr_basic
 CALL calpowerr_3D
 
 CALL editout
+!CALL editinfo
+!CALL editgrid
 
 END PROGRAM plotCore

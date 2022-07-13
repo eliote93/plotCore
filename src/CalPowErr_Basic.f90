@@ -123,7 +123,7 @@ ELSE
   !$OMP END PARALLEL
 END IF
 ! ------------------------------------------------
-!            04. SUMMARIZE
+!            04. SUMM.
 ! ------------------------------------------------
 DO iz = 1, nz
   errmax(iz) = max(maxval(powerr(:, iz)), abs(minval(powerr(:, iz))))

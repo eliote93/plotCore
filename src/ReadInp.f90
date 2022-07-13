@@ -1,8 +1,9 @@
 SUBROUTINE readinp
+! READ : 'plotCore.inp'
 
 USE allocs
 USE param, ONLY : DOT, BANG, BLANK, SLASH, TRUE, FALSE, ZERO, MP, oneline, probe
-USE mdat,  ONLY : l3d, l02, objcn, objfn, ninp, lerr, plotobj, lrel, xstr2d, ystr2d, nsize2d, xstr1d, ystr1d, nsize1d, indev, gcf2d, gca2d, gcf1d, gca1d, nz, hgt, avghgt, zlim
+USE mdat,  ONLY : l3d, l02, objcn, objfn, ninp, lerr, plotobj, lrel, xstr2d, ystr2d, nsize2d, xstr1d, ystr1d, nsize1d, indev, gcf2d, gca2d, gcf1d, gca1d, nz, hgt, avghgt, xylim, zlim
 
 IMPLICIT NONE
 
@@ -115,7 +116,10 @@ DO
     CALL dmalloc(hgt, nz)
     
     READ (oneline, *) cn, hgt(1:nz)
-    
+  
+  CASE ('XYLIM')
+    READ (oneline, *) cn, xylim
+  
   CASE ('ZLIM')
     READ (oneline, *) cn, zlim
     

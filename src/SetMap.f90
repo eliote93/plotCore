@@ -44,6 +44,7 @@ REAL :: x0(6), y0(6), x(6), y(6)
 TYPE (powdata_type), POINTER, DIMENSION(:) :: locdat
 ! ------------------------------------------------
 
+! Clock-wise from NW
 x0 = [-HALF, HALF,  ONE,  HALF, -HALF, -ONE]
 y0 = [ HALF, HALF, ZERO, -HALF, -HALF, ZERO]
 
@@ -89,10 +90,15 @@ REAL :: x0(6), y0(6), xNN(6), yNN(6), xSW(6), ySW(6), x(6), y(6)
 TYPE (powdata_type), POINTER, DIMENSION(:) :: locdat
 ! ------------------------------------------------
 
+! Clock-wise from NW
 x0  = [-HALF,  HALF,   ONE,  HALF, -HALF, -ONE]
 y0  = [ HALF,  HALF,  ZERO, -HALF, -HALF, ZERO]
+
+! WW, SW, SE, EE
 xNN = [ -ONE, -HALF,  HALF,   ONE,   ONE,  ONE]
 yNN = [ ZERO, -HALF, -HALF,  ZERO,  ZERO, ZERO]
+
+! NW, NE, EE, SE
 xSW = [-HALF,  HALF,   ONE,  HALF,  HALF, HALF]
 ySW = [ HALF, -HALF,  ZERO,  HALF,  HALF, HALF]
 
