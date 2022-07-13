@@ -37,7 +37,7 @@ REAL, POINTER, DIMENSION(:) :: MCstd01 ! (idat)
 REAL, POINTER, DIMENSION(:) :: MCstd02 ! (idat)
 REAL, POINTER, DIMENSION(:) :: xyzmax  ! (iz), 3-D Err.
 REAL, POINTER, DIMENSION(:) :: xyzrms  ! (iz), 3-D Err.
-REAL, POINTER, DIMENSION(:) :: powpf   ! (iz)
+REAL, POINTER, DIMENSION(:) :: xyzpf   ! (iz)
 REAL, POINTER, DIMENSION(:) :: hgt     ! (iz)
 
 REAL, POINTER, DIMENSION(:,:) :: axpow  ! (iz, iobj)

@@ -14,8 +14,8 @@ REAL, POINTER, DIMENSION(:) :: ref
 TYPE (powdata_type), POINTER, DIMENSION(:) :: locdat, mocdat
 ! ------------------------------------------------
 
-CALL dmalloc(xyzmax, nz)
-CALL dmalloc(xyzrms, nz)
+CALL dmalloc0(xyzmax, 0, nz)
+CALL dmalloc0(xyzrms, 0, nz)
 
 IF (.NOT. lerr) RETURN
 

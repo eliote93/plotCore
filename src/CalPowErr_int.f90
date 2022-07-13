@@ -2,7 +2,7 @@ SUBROUTINE calpowerr_int()
 
 USE allocs
 USE param, ONLY : ZERO, MP
-USE mdat,  ONLY : powdata_type, lerr, l3d, lrel, xyzmax, powerr, nz, nxy, ndat, xymax, xyrms, axmax, axrms, dat01, dat02, numthr, xymap, nz, hgt, avghgt, plotobj
+USE mdat,  ONLY : powdata_type, lerr, l3d, lrel, xyzmax, powerr, nz, nxy, ndat, xymax, xyrms, axmax, axrms, dat01, dat02, numthr, xymap, nz, hgt, avghgt, plotobj, xyzmax, xyzrms
 
 IMPLICIT NONE
 
@@ -100,6 +100,9 @@ DO ixy = 1, mxy
 END DO
 
 xyrms = sqrt(xyrms / real(mxy))
+
+xyzmax(0) = xymax
+xyzrms(0) = xyrms
 ! ------------------------------------------------
 !            03. 1-D Ax. Err.
 ! ------------------------------------------------

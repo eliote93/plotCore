@@ -3,7 +3,7 @@ SUBROUTINE plotpow()
 
 USE allocs
 USE param, ONLY : ZERO
-USE mdat,  ONLY : lerr, lrel, plotobj, ndat, dat01, dat02, powerr, numthr, powpf, nxy, nz, xypf, axpf, avghgt, hgt, axpow, powdata_type
+USE mdat,  ONLY : lerr, lrel, plotobj, ndat, dat01, dat02, powerr, numthr, xyzpf, nxy, nz, xypf, axpf, avghgt, hgt, axpow, powdata_type
 
 IMPLICIT NONE
 
@@ -13,7 +13,7 @@ REAL :: totpf
 TYPE (powdata_type), POINTER, DIMENSION(:) :: locdat
 ! ------------------------------------------------
 
-CALL dmalloc(powpf, nz)
+CALL dmalloc(xyzpf, nz)
 
 IF (lerr) RETURN
 
@@ -33,7 +33,7 @@ DO iz = 1, nz
     powerr(ixy, iz) = locdat(idat)%pow
   END DO
   
-  powpf(iz) = maxval(powerr(:, iz))
+  xyzpf(iz) = maxval(powerr(:, iz))
 END DO
 !$OMP END DO
 !$OMP END PARALLEL

@@ -122,8 +122,83 @@ END SUBROUTINE editgrid
 ! --------------------------------------------------------------------------------------------------
 SUBROUTINE editout()
 
+USE param, ONLY : FALSE, MP, DOT, BLANK
+USE mdat,  ONLY : indev, objfn, plotobj, l3d, lerr, xyzmax, xyzrms, xyzpf, nxy, nz, powerr, lrel, objcn, axmax, axrms, axpf, axpow
+
+IMPLICIT NONE
+
+INTEGER :: iquo, ixy, iz, istz, istxy, iedxy, refobj
+INTEGER, PARAMETER :: NLGH = 100
+CHARACTER*100 :: locfn
+! ------------------------------------------------
+
+WRITE (locfn, '(A, A4)') trim(objfn(plotobj)), '.out'
+CALL openfile(indev, FALSE, locfn)
+
+! Rad.
+WRITE (indev, '(A6/)') "$ Rad."
+
+IF (l3d) THEN
+  istz = 0
+ELSE
+  istz = 1
+END IF
+
+IF (lerr) THEN
+  WRITE (indev, '(A10, 2A7, 1000I13)') "Legend", "Max.", "RMS", (ixy, ixy = 1, NLGH)
+ELSE
+  WRITE (indev, '(A10, A14, 1000I13)') "Legend", "P.F.",        (ixy, ixy = 1, NLGH)
+END IF
+
+DO iz = istz, nz
+  IF (lerr) THEN
+    WRITE (indev, '(I10, 2F7.2)') iz, xyzmax(iz), xyzrms(iz)
+  ELSE
+    WRITE (indev, '(I10,  F7.2)') iz, xyzpf(iz)
+  END IF
+  
+  iquo = 0
+  
+  DO
+    iquo  = iquo + 1
+    istxy = NLGH*(iquo-1) + 1
+    iedxy = min(NLGH*iquo, nxy(plotobj))
+    
+    IF (istxy .GT. nxy(plotobj)) EXIT
+    
+    WRITE (indev, '(24X, 1000ES13.5)') (powerr(ixy, iz), ixy = istxy, iedxy)
+  END DO
+END DO
+
+! Ax.
+IF (l3d) THEN
+  WRITE (indev, '(/A5/)') "$ Ax."
+  
+  IF (lerr) THEN
+    WRITE (indev, '(A10, 2A13, 1000I13)') "Legend", "Max.", "RMS", (iz, iz = 1, nz)
+    WRITE (indev, '(A10, 1000ES13.5)') objcn(plotobj), axmax, axrms, (powerr(0, iz), iz = 1, nz)
+  ELSE
+    WRITE (indev, '(A10,  A13, 1000I13)') "Legend", "P.F.",        (iz, iz = 1, nz)
+    WRITE (indev, '(A10, 1000ES13.5)') objcn(plotobj), axpf,         (axpow(iz, plotobj), iz = 1, nz)
+    
+    IF (lrel) THEN
+      refobj = MP(plotobj)
+      
+      WRITE (indev, '(A10, A13, 1000ES13.5)') objcn(refobj), BLANK,  (axpow(iz, refobj),  iz = 1, nz)
+    END IF
+  END IF
+END IF
+
+WRITE (indev, '(A1)') DOT
+CLOSE (indev) ! 2
+! ------------------------------------------------
+
+END SUBROUTINE editout
+! --------------------------------------------------------------------------------------------------
+SUBROUTINE editout_old()
+
 USE param, ONLY : FALSE, DOT
-USE mdat,  ONLY : indev, objfn, objcn, xstr2d, ystr2d, nsize2d, xstr1d, ystr1d, nsize1d, nxy, xyzmax, xyzrms, lerr, lrel, powpf, &
+USE mdat,  ONLY : indev, objfn, objcn, xstr2d, ystr2d, nsize2d, xstr1d, ystr1d, nsize1d, nxy, xyzmax, xyzrms, lerr, lrel, xyzpf, &
                   gcf2D, gca2D, gcf1d, gca1d, nz, l3d, xypf, axpf, xymax, axmax, xyrms, axrms, hgt, powerr, axpow, zlim, plotobj
 
 IMPLICIT NONE
@@ -142,7 +217,7 @@ IF (.NOT. l3d) THEN
   CALL echoinp(indev)
   
   WRITE (indev, '(I5, 3L2)') nxy(plotobj), lerr, lrel, l3d
-  WRITE (indev, '(3ES13.5)') powpf(1), xyzmax(1), xyzrms(1)
+  WRITE (indev, '(3ES13.5)') xyzpf(1), xyzmax(1), xyzrms(1)
   WRITE (indev, '(3I5)')     xstr2d, ystr2d, nsize2d
   WRITE (indev, '(4I5)')     gcf2D(1:4)
   WRITE (indev, '(4F6.3)')   gca2D(1:4)
@@ -167,7 +242,7 @@ DO iz = 1, nz
   CALL echoinp(indev)
   
   WRITE (indev, '(I5, 3L2)') nxy(plotobj), lerr, lrel, l3d
-  WRITE (indev, '(3ES13.5)') powpf(iz), xyzmax(iz), xyzrms(iz)
+  WRITE (indev, '(3ES13.5)') xyzpf(iz), xyzmax(iz), xyzrms(iz)
   WRITE (indev, '(3I5)')     xstr2d, ystr2d, nsize2d
   WRITE (indev, '(4I5)')     gcf2D(1:4)
   WRITE (indev, '(4F6.3)')   gca2D(1:4)
@@ -214,7 +289,7 @@ WRITE (indev, '(A1)') DOT
 CLOSE (indev)
 ! ------------------------------------------------
 
-END SUBROUTINE editout
+END SUBROUTINE editout_old
 ! --------------------------------------------------------------------------------------------------
 SUBROUTINE editrad(iz)
 
