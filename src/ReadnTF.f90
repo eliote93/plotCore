@@ -2,7 +2,7 @@ SUBROUTINE readnTF(iobj, fn)
 
 USE allocs
 USE param, ONLY : DOT, BANG, BLANK, MAXNPIN, SLASH, ZERO, EPS, TRUE, oneline, probe
-USE mdat,  ONLY : aoF2F, NTnpin, NTpF2F, lHS, nz, ndat, dat01, dat02, naRng, numthr, indev, l3d, lrot, hgt, avghgt, powdata_type, nxy
+USE mdat,  ONLY : aoF2F, NTnpin, NTpF2F, lHS, nz, ndat, dat01, dat02, naRng, numthr, indev, l3d, lrot, hgt, avghgt, powdata_type, nxy, keff
 
 IMPLICIT NONE
 
@@ -63,13 +63,15 @@ DO
     lHS (iobj) = sym .NE. 360
     lrot(iobj) = cn  .EQ. "ROT"
   END SELECT
+  
+  IF (oneline(8:12) .EQ. 'k-eff') READ (oneline(18:25), *) keff(iobj)
 END DO
 
 1000 CONTINUE
 
 REWIND (indev)
 ! ------------------------------------------------
-!            02. # of data
+!            02. # of Data
 ! ------------------------------------------------
 NTnz       = 0
 ndat(iobj) = 0

@@ -1,27 +1,28 @@
 SUBROUTINE calpowerr_3D()
 
 USE allocs
-USE param, ONLY : ZERO, MP
-USE mdat,  ONLY : powdata_type, lerr, lrel, l3d, powerr, dat01, dat02, ndat, xyzmax, xyzrms, nz, nxy, xymap, numthr, avghgt, hgt, plotobj
+USE param, ONLY : ZERO, MP, ERRABS, ERRREL
+USE mdat,  ONLY : powdata_type, lerr, l3d, powerr, dat01, dat02, ndat, xyzmax, xyzrms, nz, nxy, xymap, numthr, avghgt, hgt, plotobj
 
 IMPLICIT NONE
 
-INTEGER :: idat, jdat, iz, ixy, jxy, kxy, jobj, mxy
+INTEGER :: idat, jdat, iz, ixy, jxy, kxy, jobj, mxy, ierr
 REAL :: psum, tot01, tot02, rnrm, totmax, totrms
 
 REAL, POINTER, DIMENSION(:) :: ref
 
+CHARACTER*4 :: ctmp
 TYPE (powdata_type), POINTER, DIMENSION(:) :: locdat, mocdat
 ! ------------------------------------------------
 
-CALL dmalloc0(xyzmax, 0, nz)
-CALL dmalloc0(xyzrms, 0, nz)
+CALL dmalloc0(xyzmax, 0, nz, 1, 2)
+CALL dmalloc0(xyzrms, 0, nz, 1, 2)
 
 IF (.NOT. lerr) RETURN
 
 mxy = nxy(plotobj)
 
-CALL dmalloc0(powerr, 0, mxy, 0, nz)
+CALL dmalloc0(powerr, 0, mxy, 0, nz, 1, 2)
 
 CALL dmalloc(ref, ndat(plotobj))
 
@@ -97,64 +98,60 @@ ref = ref * rnrm
 ! ------------------------------------------------
 !            03. CAL : 3-D Err.
 ! ------------------------------------------------
-IF (lrel) THEN
-  !$OMP PARALLEL PRIVATE(iz, ixy, idat) NUM_THREADS(numthr)
-  !$OMP DO SCHEDULE(GUIDED)
-  DO iz = 1, nz
-    DO ixy = 1, mxy
-      idat = ixy + mxy * (iz-1)
-      
-      powerr(ixy, iz) = 100. * (locdat(idat)%pow - ref(idat)) / ref(idat)
-    END DO
+!$OMP PARALLEL PRIVATE(iz, ixy, idat) NUM_THREADS(numthr)
+!$OMP DO SCHEDULE(GUIDED)
+DO iz = 1, nz
+  DO ixy = 1, mxy
+    idat = ixy + mxy * (iz-1)
+    
+    powerr(ixy, iz, ERRABS) = 100. * (locdat(idat)%pow - ref(idat))
+    powerr(ixy, iz, ERRREL) = 100. * (locdat(idat)%pow - ref(idat)) / ref(idat)
   END DO
-  !$OMP END DO
-  !$OMP END PARALLEL
-ELSE
-  !$OMP PARALLEL PRIVATE(iz, ixy, idat) NUM_THREADS(numthr)
-  !$OMP DO SCHEDULE(GUIDED)
-  DO iz = 1, nz
-    DO ixy = 1, mxy
-      idat = ixy + mxy * (iz-1)
-      
-      powerr(ixy, iz) = 100. * (locdat(idat)%pow - ref(idat))
-    END DO
-  END DO
-  !$OMP END DO
-  !$OMP END PARALLEL
-END IF
+END DO
+!$OMP END DO
+!$OMP END PARALLEL
 ! ------------------------------------------------
 !            04. SUMM.
 ! ------------------------------------------------
 ! Pln.-wise
 DO iz = 1, nz
-  xyzmax(iz) = max(maxval(powerr(:, iz)), abs(minval(powerr(:, iz))))
-  
-  DO ixy = 1, mxy
-    xyzrms(iz) = xyzrms(iz) + powerr(ixy, iz) * powerr(ixy, iz)
+  DO ierr = 1, 2
+    xyzmax(iz, ierr) = max(maxval(powerr(:, iz, ierr)), abs(minval(powerr(:, iz, ierr))))
+    
+    DO ixy = 1, mxy
+      xyzrms(iz, ierr) = xyzrms(iz, ierr) + powerr(ixy, iz, ierr) * powerr(ixy, iz, ierr)
+    END DO
+    
+    xyzrms(iz, ierr) = sqrt(xyzrms(iz, ierr) / real(mxy))
   END DO
-  
-  xyzrms(iz) = sqrt(xyzrms(iz) / real(mxy))
 END DO
 
 ! Total
-totmax = maxval(xyzmax)
-totrms = ZERO
-
-DO iz = 1, nz
-  DO ixy = 1, mxy
-    totrms = totrms + powerr(ixy, iz) * powerr(ixy, iz)
+DO ierr = 1, 2
+  totmax = maxval(xyzmax(:, ierr))
+  totrms = ZERO
+  
+  DO iz = 1, nz
+    DO ixy = 1, mxy
+      totrms = totrms + powerr(ixy, iz, ierr) * powerr(ixy, iz, ierr)
+    END DO
   END DO
+  
+  totrms = sqrt(totrms / real(ndat(plotobj)))
+  
+  SELECT CASE (ierr)
+  CASE (ERRABS); ctmp = 'Abs.'
+  CASE (ERRREL); ctmp = 'Rel.'
+  END SELECT
+  
+  IF (l3d) THEN
+    WRITE (*, '(A36, F5.2, X, A3)') '3-D Power ' // ctmp // ' Error Max. : ', totmax, '(%)'
+    WRITE (*, '(A36, F5.2, X, A3)') '3-D Power ' // ctmp // ' Error RMS  : ', totrms, '(%)'
+  ELSE
+    WRITE (*, '(A36, F5.2, X, A3)') '2-D Power ' // ctmp // ' Error Max. : ', totmax, '(%)'
+    WRITE (*, '(A36, F5.2, X, A3)') '2-D Power ' // ctmp // ' Error RMS  : ', totrms, '(%)'
+  END IF
 END DO
-
-totrms = sqrt(totrms / real(ndat(plotobj)))
-
-IF (l3d) THEN
-  WRITE (*, '(A31, F5.2, X, A3)') '3-D Power Error Max. : ', totmax, '(%)'
-  WRITE (*, '(A31, F5.2, X, A3)') '3-D Power Error RMS  : ', totrms, '(%)'
-ELSE
-  WRITE (*, '(A31, F5.2, X, A3)') '2-D Power Error Max. : ', totmax, '(%)'
-  WRITE (*, '(A31, F5.2, X, A3)') '2-D Power Error RMS  : ', totrms, '(%)'
-END IF
 
 NULLIFY (locdat)
 NULLIFY (mocdat)

@@ -1,7 +1,7 @@
 SUBROUTINE chkobj()
 
 USE param, ONLY : EPS, MP
-USE mdat,  ONLY : lerr, l3d, lHS, naRng, maRng, aoF2F, boF2F, MCpF2F, NTpF2F, RNpF2F, qF2F, MCnPin, NTnPin, RNnPin, mPin, ndat, nxy, nz, dat01, dat02, zlim, objcn, powdata_type, plotobj
+USE mdat,  ONLY : lerr, l3d, lHS, naRng, maRng, aoF2F, boF2F, MCpF2F, NTpF2F, RNpF2F, qF2F, MCnPin, NTnPin, RNnPin, mPin, ndat, nxy, nz, dat01, dat02, zlim, objcn, powdata_type, plotobj, keff
 
 IMPLICIT NONE
 
@@ -30,7 +30,7 @@ CASE ('RN')
   mPin = RNnPin (plotobj)
   qF2F = RNpF2F (plotobj)
 END SELECT
-
+! ------------------------------------------------
 IF (.NOT. lerr) RETURN
 
 IF (.NOT. lHS(plotobj) .AND. lHS(MP(plotobj))) CALL terminate("OBJ = FS vs. REF = HS")
@@ -57,6 +57,11 @@ IF (err .GT. EPS) CALL terminate("ASY F2F")
 err = abs(pF2F(1) - pF2F(2))
 
 IF (err .GT. EPS) CALL terminate("PIN F2F")
+
+IF (keff(1) .LT. EPS) CALL terminate("K-EFF")
+IF (keff(2) .LT. EPS) CALL terminate("K-EFF")
+WRITE (*, '(18X, A18, F7.5)')      'Reference k-eff : ',       keff(MP(plotobj))
+WRITE (*, '(12X, A24, I5, X, A5)') 'Reactivity Difference : ', int(100000.*(1./keff(plotobj) - 1./keff(MP(plotobj)))), '(pcm)'
 ! ------------------------------------------------
 IF (.NOT. l3d)  RETURN
 

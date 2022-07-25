@@ -1,16 +1,17 @@
 SUBROUTINE calpowerr_int()
 
 USE allocs
-USE param, ONLY : ZERO, MP
-USE mdat,  ONLY : powdata_type, lerr, l3d, lrel, xyzmax, powerr, nz, nxy, ndat, xymax, xyrms, axmax, axrms, dat01, dat02, numthr, xymap, nz, hgt, avghgt, plotobj, xyzmax, xyzrms
+USE param, ONLY : ZERO, MP, ERRABS, ERRREL
+USE mdat,  ONLY : powdata_type, lerr, l3d, xyzmax, powerr, nz, nxy, ndat, xymax, xyrms, axmax, axrms, dat01, dat02, numthr, xymap, nz, hgt, avghgt, plotobj, xyzmax, xyzrms
 
 IMPLICIT NONE
 
-INTEGER :: iz, ixy, jxy, kxy, idat, mxy, lxy, jobj
+INTEGER :: iz, ixy, jxy, kxy, idat, mxy, lxy, jobj, ierr
 REAL :: totmax, totrms, rnrm, psum, totpow
 
 REAL, POINTER, DIMENSION(:) :: xyobj, xysub, zobj, zsub, ref
 
+CHARACTER*4 :: ctmp
 TYPE (powdata_type), POINTER, DIMENSION(:) :: locdat, mocdat
 ! ------------------------------------------------
 
@@ -73,36 +74,31 @@ rnrm = real(mxy) / sum(ref)
 ref  = ref * rnrm ! Norm.
 
 ! CAL : Err.
-IF (lrel) THEN
-  !$OMP PARALLEL PRIVATE(ixy) NUM_THREADS(numthr)
-  !$OMP DO SCHEDULE(GUIDED)
-  DO ixy = 1, mxy
-    powerr(ixy, 0) = 100. * (xyobj(ixy) - ref(ixy)) / ref(ixy)
-  END DO
-  !$OMP END DO
-  !$OMP END PARALLEL
-ELSE
-  !$OMP PARALLEL PRIVATE(ixy) NUM_THREADS(numthr)
-  !$OMP DO SCHEDULE(GUIDED)
-  DO ixy = 1, mxy
-    powerr(ixy, 0) = 100. * (xyobj(ixy) - ref(ixy))
-  END DO
-  !$OMP END DO
-  !$OMP END PARALLEL
-END IF
+!$OMP PARALLEL PRIVATE(ixy) NUM_THREADS(numthr)
+!$OMP DO SCHEDULE(GUIDED)
+DO ixy = 1, mxy
+  powerr(ixy, 0, ERRABS) = 100. * (xyobj(ixy) - ref(ixy))
+  powerr(ixy, 0, ERRREL) = 100. * (xyobj(ixy) - ref(ixy)) / ref(ixy)
+END DO
+!$OMP END DO
+!$OMP END PARALLEL
 
 ! SUMM.
-xymax = max(maxval(powerr(:, 0)), abs(minval(powerr(:, 0))))
 xyrms = ZERO
 
-DO ixy = 1, mxy
-  xyrms = xyrms + powerr(ixy, 0) * powerr(ixy, 0)
+DO ierr = 1, 2
+  xymax(ierr) = max(maxval(powerr(:, 0, ierr)), abs(minval(powerr(:, 0, ierr))))
+  
+  DO ixy = 1, mxy
+    xyrms(ierr) = xyrms(ierr) + powerr(ixy, 0, ierr) * powerr(ixy, 0, ierr)
+  END DO
+  
+  xyrms(ierr) = sqrt(xyrms(ierr) / real(mxy))
+  
+  xyzmax(0, ierr) = xymax(ierr)
+  xyzrms(0, ierr) = xyrms(ierr)
 END DO
 
-xyrms = sqrt(xyrms / real(mxy))
-
-xyzmax(0) = xymax
-xyzrms(0) = xyrms
 ! ------------------------------------------------
 !            03. 1-D Ax. Err.
 ! ------------------------------------------------
@@ -140,33 +136,38 @@ END DO
 zsub = zsub / (totpow / real(nz))
 
 ! CAL : Err.
-IF (lrel) THEN
-  DO iz = 1, nz
-    powerr(0, iz) = 100 * (zobj(iz) - zsub(iz)) / zsub(iz)
-  END DO
-ELSE
-  DO iz = 1, nz
-    powerr(0, iz) = 100 * (zobj(iz) - zsub(iz))
-  END DO
-END IF
-
-! SUMM.
-axmax = max(maxval(powerr(0, :)), abs(minval(powerr(0, :))))
-axrms = ZERO
-
 DO iz = 1, nz
-  axrms = axrms + powerr(0, iz) * powerr(0, iz)
+  powerr(0, iz, ERRABS) = 100 * (zobj(iz) - zsub(iz))
+  powerr(0, iz, ERRREL) = 100 * (zobj(iz) - zsub(iz)) / zsub(iz)
 END DO
 
-axrms = sqrt(axrms / real(nz))
+! SUMM.
+axrms = ZERO
+
+DO ierr = 1, 2
+  axmax(ierr) = max(maxval(powerr(0, :, ierr)), abs(minval(powerr(0, :, ierr))))
+  
+  DO iz = 1, nz
+    axrms(ierr) = axrms(ierr) + powerr(0, iz, ierr) * powerr(0, iz, ierr)
+  END DO
+  
+  axrms(ierr) = sqrt(axrms(ierr) / real(nz))
+END DO
 ! ------------------------------------------------
 !            04. FIN
 ! ------------------------------------------------
 ! PRINT
-WRITE (*, '(A31, F5.2, X, A3)') '2-D Power Error Max. : ', xymax, '(%)'
-WRITE (*, '(A31, F5.2, X, A3)') '2-D Power Error RMS  : ', xyrms, '(%)'
-WRITE (*, '(A31, F5.2, X, A3)') '1-D Power Error Max. : ', axmax, '(%)'
-WRITE (*, '(A31, F5.2, X, A3)') '1-D Power Error RMS  : ', axrms, '(%)'
+DO ierr = 1, 2
+  SELECT CASE (ierr)
+  CASE (ERRABS); ctmp = 'Abs.'
+  CASE (ERRREL); ctmp = 'Rel.'
+  END SELECT
+  
+  WRITE (*, '(A36, F5.2, X, A3)') '2-D Power ' // ctmp // ' Error Max. : ', xymax(ierr), '(%)'
+  WRITE (*, '(A36, F5.2, X, A3)') '2-D Power ' // ctmp // ' Error RMS  : ', xyrms(ierr), '(%)'
+  WRITE (*, '(A36, F5.2, X, A3)') '1-D Power ' // ctmp // ' Error Max. : ', axmax(ierr), '(%)'
+  WRITE (*, '(A36, F5.2, X, A3)') '1-D Power ' // ctmp // ' Error RMS  : ', axrms(ierr), '(%)'
+END DO
 
 ! FREE
 NULLIFY (locdat)

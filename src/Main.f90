@@ -1,9 +1,11 @@
 PROGRAM plotCore
 ! ASSUME : Only One Fuel Pin Type
 
-USE mdat, ONLY : fdir, numthr
+USE mdat, ONLY : fdir, numthr, nerr
 
 IMPLICIT NONE
+
+INTEGER :: ierr
 
 fdir   = 'C:\Users\user\Documents\MATLAB\'
 numthr = 6
@@ -23,6 +25,9 @@ CALL calpowerr_int
 
 CALL editinfo
 CALL editgrid
-CALL editout
+
+DO ierr = 1, 2
+  CALL editout(ierr)
+END DO
 
 END PROGRAM plotCore

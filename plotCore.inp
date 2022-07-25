@@ -1,11 +1,10 @@
-ID_01        NT / ND_FS_GM_P0
-ID_02        NT / ND_HS_GM_P0
+ID_01        NT / FS_GM_YD
+ID_02        NT / FS_NM_YD
 plot_Err     T  2 ! Err. = plot obj - other obj
-cal_Rel      F
-tpos_2d      110 -120
+tpos_2d      40 -40
 tsize_2d     30
-gcf_2d       500 100 1050 830
-gca_2d       0.135 0.11 0.735 0.9
+gcf_2d       500 100 1100 820
+gca_2d       0.11 0.035 0.75 1.05
 xylim        2.
 !hgt          24*1.785
 !tpos_1d      40 -55

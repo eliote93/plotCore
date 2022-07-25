@@ -320,8 +320,8 @@ INTEGER :: iobj
 IF (iobj.EQ.2 .AND. .NOT.l02) RETURN
 
 SELECT CASE (objcn(iobj))
-CASE ('NT');  CALL readnTF(iobj, objfn(iobj))
-CASE ('MC');  CALL readMC(iobj, ninp(iobj), objfn(iobj))
+CASE ('NT');  CALL readnTF (iobj, objfn(iobj))
+CASE ('MC');  CALL readMC  (iobj, ninp(iobj), objfn(iobj))
 CASE ('RN');  CALL readRNSS(iobj, objfn(iobj))
 CASE DEFAULT; CALL terminate("WRONG CODE NAME")
 END SELECT
