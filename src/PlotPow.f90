@@ -3,12 +3,11 @@ SUBROUTINE plotpow()
 
 USE allocs
 USE param, ONLY : ZERO
-USE mdat,  ONLY : lerr, plotobj, ndat, dat01, dat02, powerr, numthr, xyzpf, nxy, nz, xypf, axpf, avghgt, hgt, axpow, powdata_type
+USE mdat,  ONLY : lerr, plotobj, ndat, dat01, dat02, powerr, numthr, nxy, nz, xyztotpf, xyzpf, xypf, axpf, avghgt, hgt, axpow, powdata_type
 
 IMPLICIT NONE
 
 INTEGER :: idat, ixy, iz, iobj
-REAL :: totpf
 
 TYPE (powdata_type), POINTER, DIMENSION(:) :: locdat
 ! ------------------------------------------------
@@ -38,9 +37,9 @@ END DO
 !$OMP END DO
 !$OMP END PARALLEL
 
-totpf = maxval(powerr)
+xyztotpf = maxval(powerr)
 
-WRITE (*, '(A27, F7.2)') '3-D Power Peaking Factor : ', totpf
+WRITE (*, '(A27, F7.2)') '3-D Power Peaking Factor : ', xyztotpf
 ! ------------------------------------------------
 DO ixy = 1, nxy(plotobj)
   DO iz = 1, nz

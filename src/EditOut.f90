@@ -1,4 +1,44 @@
 ! --------------------------------------------------------------------------------------------------
+SUBROUTINE printout(ierr)
+
+USE param, ONLY : ERRABS, ERRREL
+USE mdat, ONLY : l3d, lerr, xyztotmax, xyztotrms, xymax, xyrms, axmax, axrms, xyztotpf, xypf, axpf
+
+IMPLICIT NONE
+
+INTEGER :: ierr
+CHARACTER*4 :: ctmp
+! ------------------------------------------------
+
+SELECT CASE (ierr)
+CASE (ERRABS); ctmp = 'Abs.'
+CASE (ERRREL); ctmp = 'Rel.'
+END SELECT
+
+IF (lerr) THEN
+  IF (l3d) THEN
+    WRITE (*, '(A36, F7.2, X, A3)') '3-D Power ' // ctmp // ' Error Max. : ', xyztotmax(ierr), '(%)'
+    WRITE (*, '(A36, F7.2, X, A3)') '3-D Power ' // ctmp // ' Error RMS  : ', xyztotrms(ierr), '(%)'
+  END IF
+  
+  WRITE (*, '(A36, F7.2, X, A3)') '2-D Power ' // ctmp // ' Error Max. : ', xymax(ierr), '(%)'
+  WRITE (*, '(A36, F7.2, X, A3)') '2-D Power ' // ctmp // ' Error RMS  : ', xyrms(ierr), '(%)'
+  
+  IF (l3d) THEN
+    WRITE (*, '(A36, F7.2, X, A3)') '1-D Power ' // ctmp // ' Error Max. : ', axmax(ierr), '(%)'
+    WRITE (*, '(A36, F7.2, X, A3)') '1-D Power ' // ctmp // ' Error RMS  : ', axrms(ierr), '(%)'
+  END IF
+ELSE
+  IF (l3d) WRITE (*, '(A27, F7.2)') '3-D Power Peaking Factor : ', xyztotpf
+           WRITE (*, '(A27, F7.2)') '2-D Power Peaking Factor : ', xypf
+  IF (l3d) WRITE (*, '(A27, F7.2)') '1-D Power Peaking Factor : ', axpf
+END IF
+
+WRITE (*,*)
+! ------------------------------------------------
+
+END SUBROUTINE printout
+! --------------------------------------------------------------------------------------------------
 SUBROUTINE editinfo()
 
 USE param, ONLY : FALSE, DOT, oneline, probe

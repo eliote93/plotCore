@@ -70,6 +70,9 @@ DO
     
   CASE ('PLOT_ERR')
     READ (oneline, *) cn, lerr, plotobj
+  
+  CASE ('BENCH')
+    CALL readbench(oneline)
     
   CASE ('TPOS_1D')
     READ (oneline, *) cn, xstr1d, ystr1d

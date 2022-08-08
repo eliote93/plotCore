@@ -98,7 +98,6 @@ DO ierr = 1, 2
   xyzmax(0, ierr) = xymax(ierr)
   xyzrms(0, ierr) = xyrms(ierr)
 END DO
-
 ! ------------------------------------------------
 !            03. 1-D Ax. Err.
 ! ------------------------------------------------
@@ -154,22 +153,8 @@ DO ierr = 1, 2
   axrms(ierr) = sqrt(axrms(ierr) / real(nz))
 END DO
 ! ------------------------------------------------
-!            04. FIN
+!            04. Free
 ! ------------------------------------------------
-! PRINT
-DO ierr = 1, 2
-  SELECT CASE (ierr)
-  CASE (ERRABS); ctmp = 'Abs.'
-  CASE (ERRREL); ctmp = 'Rel.'
-  END SELECT
-  
-  WRITE (*, '(A36, F5.2, X, A3)') '2-D Power ' // ctmp // ' Error Max. : ', xymax(ierr), '(%)'
-  WRITE (*, '(A36, F5.2, X, A3)') '2-D Power ' // ctmp // ' Error RMS  : ', xyrms(ierr), '(%)'
-  WRITE (*, '(A36, F5.2, X, A3)') '1-D Power ' // ctmp // ' Error Max. : ', axmax(ierr), '(%)'
-  WRITE (*, '(A36, F5.2, X, A3)') '1-D Power ' // ctmp // ' Error RMS  : ', axrms(ierr), '(%)'
-END DO
-
-! FREE
 NULLIFY (locdat)
 NULLIFY (mocdat)
 

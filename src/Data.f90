@@ -25,11 +25,11 @@ INTEGER, POINTER, DIMENSION(:) :: ptmod
 
 INTEGER, POINTER, DIMENSION(:,:) :: xymap ! (nMC:iMC, iNT)
 ! ------------------------------------------------
-REAL :: xypf, axpf, avghgt, xylim, zlim, boF2F, qF2F
+REAL :: xyztotpf, xypf, axpf, avghgt, xylim, zlim, boF2F, qF2F
 REAL :: ystr1d, gca2d(4), gca1d(4)
 REAL :: corebndy(2, 2, 2) ! (min/max, x/y, obj)
 
-REAL, DIMENSION(2) :: aoF2F, MCpF2F, rMC, RNpF2F, xymax, xyrms, axmax, axrms, keff
+REAL, DIMENSION(2) :: aoF2F, MCpF2F, rMC, RNpF2F, xyztotmax, xyztotrms, xymax, xyrms, axmax, axrms, keff
 
 REAL, DIMENSION(100, 2) :: NTpF2F
 

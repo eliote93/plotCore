@@ -36,6 +36,7 @@
 		<File RelativePath=".\src\Main.f90"/>
 		<File RelativePath=".\src\param.f90"/>
 		<File RelativePath=".\src\PlotPow.f90"/>
+		<File RelativePath=".\src\ReadBench.f90"/>
 		<File RelativePath=".\src\ReadInp.f90"/>
 		<File RelativePath=".\src\ReadMC.f90"/>
 		<File RelativePath=".\src\ReadnTF.f90"/>

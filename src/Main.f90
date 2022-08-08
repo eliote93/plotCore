@@ -27,6 +27,7 @@ CALL editinfo
 CALL editgrid
 
 DO ierr = 1, 2
+  CALL printout(ierr)
   CALL editout(ierr)
 END DO
 

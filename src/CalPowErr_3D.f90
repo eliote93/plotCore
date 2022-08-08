@@ -2,12 +2,12 @@ SUBROUTINE calpowerr_3D()
 
 USE allocs
 USE param, ONLY : ZERO, MP, ERRABS, ERRREL
-USE mdat,  ONLY : powdata_type, lerr, l3d, powerr, dat01, dat02, ndat, xyzmax, xyzrms, nz, nxy, xymap, numthr, avghgt, hgt, plotobj
+USE mdat,  ONLY : powdata_type, lerr, l3d, powerr, dat01, dat02, ndat, xyzmax, xyzrms, xyztotmax, xyztotrms, xymax, xyrms, nz, nxy, xymap, numthr, avghgt, hgt, plotobj
 
 IMPLICIT NONE
 
 INTEGER :: idat, jdat, iz, ixy, jxy, kxy, jobj, mxy, ierr
-REAL :: psum, tot01, tot02, rnrm, totmax, totrms
+REAL :: psum, tot01, tot02, rnrm
 
 REAL, POINTER, DIMENSION(:) :: ref
 
@@ -127,31 +127,24 @@ DO iz = 1, nz
 END DO
 
 ! Total
+xyztotrms = ZERO
+
 DO ierr = 1, 2
-  totmax = maxval(xyzmax(:, ierr))
-  totrms = ZERO
+  xyztotmax(ierr) = maxval(xyzmax(:, ierr))
   
   DO iz = 1, nz
     DO ixy = 1, mxy
-      totrms = totrms + powerr(ixy, iz, ierr) * powerr(ixy, iz, ierr)
+      xyztotrms(ierr) = xyztotrms(ierr) + powerr(ixy, iz, ierr) * powerr(ixy, iz, ierr)
     END DO
   END DO
   
-  totrms = sqrt(totrms / real(ndat(plotobj)))
-  
-  SELECT CASE (ierr)
-  CASE (ERRABS); ctmp = 'Abs.'
-  CASE (ERRREL); ctmp = 'Rel.'
-  END SELECT
-  
-  IF (l3d) THEN
-    WRITE (*, '(A36, F5.2, X, A3)') '3-D Power ' // ctmp // ' Error Max. : ', totmax, '(%)'
-    WRITE (*, '(A36, F5.2, X, A3)') '3-D Power ' // ctmp // ' Error RMS  : ', totrms, '(%)'
-  ELSE
-    WRITE (*, '(A36, F5.2, X, A3)') '2-D Power ' // ctmp // ' Error Max. : ', totmax, '(%)'
-    WRITE (*, '(A36, F5.2, X, A3)') '2-D Power ' // ctmp // ' Error RMS  : ', totrms, '(%)'
-  END IF
+  xyztotrms(ierr) = sqrt(xyztotrms(ierr) / real(ndat(plotobj)))
 END DO
+
+IF (.NOT. l3d) THEN
+  xymax = xyztotmax
+  xyrms = xyztotrms
+END IF
 
 NULLIFY (locdat)
 NULLIFY (mocdat)
