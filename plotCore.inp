@@ -1,16 +1,16 @@
-ID_01        NT / V06_HS_ND_t1
-ID_02        NT / V06_HS_YD_t1
+ID_01        NT / HS_ND
+ID_02        NT / HS_YD_NEW
 plot_Err     T  2 ! Err. = plot obj - other obj
 xylim        2.
-zlim         3.
+!zlim         1.
 
-bench        RAD_V-10_HS_Err
+bench        RAD_C5G7_H_HS_ERR
 !tpos_2d      100 -105
 !tsize_2d     20
 !gcf_2d       500 100 1085 860
 !gca_2d       0.13 0.11 0.72 0.90
 
-!bench       AX_V-10_HS_Err
+!bench       AX_C5G7_H_ERR
 !hgt          12*20.83333333333333
 !tpos_1d      30 0.
 !tsize_1d     30
@@ -26,10 +26,6 @@ bench        RAD_V-10_HS_Err
 
 ! AX
 ! C5G7 H : ERR/MC
-! V-10 : ERR/MC
+! V-4.4 : ERR
+! V-10 : ORG/SMP ERR/MC
 ! BCN : ERR/POW
-
-! Hgt
-! C5G7 H
-! V-10 : ORG/SMP
-! BCN

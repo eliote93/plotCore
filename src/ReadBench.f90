@@ -28,6 +28,20 @@ IF (tmp(1:3) .EQ. 'RAD') THEN
     
     gcf2d = [500, 100, 1050, 820]
     gca2d = [0.115, 0.035, 0.755, 1.05]
+  ELSE IF (tmp(5:17) .EQ. 'C5G7_H_EC_HS_ERR') THEN
+    xstr2d  =  110
+    ystr2d  = -110
+    nsize2d =   20
+    
+    gcf2d = [500, 100, 1000, 820]
+    gca2d = [0.12, 0.14, 0.76, 0.84]
+  ELSE IF (tmp(5:17) .EQ. 'C5G7_H_EC_FS_ERR') THEN
+    xstr2d  =  100
+    ystr2d  = -120
+    nsize2d =   17
+    
+    gcf2d = [500, 100, 1050, 820]
+    gca2d = [0.132, 0.045, 0.74, 1.03]
   ELSE IF (tmp(5:16) .EQ. 'C5G7_H_FS_MC') THEN
     xstr2d  =  35
     ystr2d  = -40
@@ -38,7 +52,7 @@ IF (tmp(1:3) .EQ. 'RAD') THEN
   ELSE IF (tmp(5:16) .EQ. 'V-4.4_HS_ERR') THEN
     xstr2d  =  100
     ystr2d  = -105
-    nsize2d =   20
+    nsize2d =   30
     
     gcf2d = [500, 100, 1085, 860]
     gca2d = [0.13, 0.11, 0.72, 0.9]
@@ -77,6 +91,8 @@ IF (tmp(1:3) .EQ. 'RAD') THEN
     
     gcf2d = [500, 100, 1100, 820]
     gca2d = [0.13, 0.13, 0.74, 0.85]
+  ELSE
+    CALL terminate("WRONG BENCH")
   END IF
 ! ------------------------------------------------
 ! Ax.
@@ -101,7 +117,18 @@ ELSE IF (tmp(1:2) .EQ. 'AX') THEN
       
       gca1d = [0.11, 0.16, 0.88, 0.84]
     END IF
-  ELSE IF (tmp(4:11) .EQ. 'V-10_ORG') THEN
+  ELSE IF (tmp(4:8) .EQ. 'V-4.4') THEN
+    nz = 12
+    CALL dmalloc(hgt, nz)
+    hgt(1:nz) = 20.83333333333333
+    
+    xstr1d = 30
+    ystr1d =  0.
+    
+    gca1d = [0.13, 0.17, 0.85, 0.8]
+    gcf1d = [500, 100, 1100, 730]
+    
+  ELSE IF (tmp(4:7) .EQ. 'V-10') THEN
     IF (tmp(9:11) .EQ. 'ORG') THEN
       nz = 28
       CALL dmalloc(hgt, nz)
@@ -143,7 +170,11 @@ ELSE IF (tmp(1:2) .EQ. 'AX') THEN
       
       gca1d = [0.11, 0.16, 0.86, 0.82]
     END IF
+  ELSE
+    CALL terminate("WRONG BENCH")
   END IF
+ELSE
+  CALL terminate("WRONG BENCH")
 END IF
 ! ------------------------------------------------
 
