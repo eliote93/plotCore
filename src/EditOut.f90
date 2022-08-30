@@ -172,19 +172,17 @@ INTEGER, PARAMETER :: NLGH = 100
 CHARACTER*100 :: locfn
 ! ------------------------------------------------
 
+! Rad.
 IF (lerr) THEN
   SELECT CASE (ierr)
-  CASE (ERRABS); WRITE (locfn, '(A, A8)') trim(objfn(plotobj)), '_abs.out'
-  CASE (ERRREL); WRITE (locfn, '(A, A8)') trim(objfn(plotobj)), '_rel.out'
+  CASE (ERRABS); WRITE (locfn, '(A, A11)') trim(objfn(plotobj)), '_abs_xy.out'
+  CASE (ERRREL); WRITE (locfn, '(A, A11)') trim(objfn(plotobj)), '_rel_xy.out'
   END SELECT
 ELSE
-  WRITE (locfn, '(A, A4)') trim(objfn(plotobj)), '.out'
+  WRITE (locfn, '(A, A7)') trim(objfn(plotobj)), '_xy.out'
 END IF
 
 CALL openfile(indev, FALSE, locfn)
-
-! Rad.
-WRITE (indev, '(A6/)') "$ Rad."
 
 IF (l3d) THEN
   istz = 0
@@ -218,9 +216,21 @@ DO iz = istz, nz
   END DO
 END DO
 
+WRITE (indev, '(A1)') DOT
+CLOSE (indev) ! 2
+
 ! Ax.
 IF (l3d) THEN
-  WRITE (indev, '(/A5/)') "$ Ax."
+  IF (lerr) THEN
+    SELECT CASE (ierr)
+    CASE (ERRABS); WRITE (locfn, '(A, A10)') trim(objfn(plotobj)), '_abs_z.out'
+    CASE (ERRREL); WRITE (locfn, '(A, A10)') trim(objfn(plotobj)), '_rel_z.out'
+    END SELECT
+  ELSE
+    WRITE (locfn, '(A, A6)') trim(objfn(plotobj)), '_z.out'
+  END IF
+  
+  CALL openfile(indev, FALSE, locfn)
   
   IF (lerr) THEN
     WRITE (indev, '(A10, 2A13, 1000I13)') "Legend", "Max.", "RMS", (iz, iz = 1, nz)
@@ -235,10 +245,10 @@ IF (l3d) THEN
     !  WRITE (indev, '(A10, A13, 1000ES13.5)') objcn(refobj), BLANK,              (axpow(iz, refobj),   iz = 1, nz)
     !END IF
   END IF
+  
+  WRITE (indev, '(A1)') DOT
+  CLOSE (indev) ! 2
 END IF
-
-WRITE (indev, '(A1)') DOT
-CLOSE (indev) ! 2
 ! ------------------------------------------------
 
 END SUBROUTINE editout

@@ -58,8 +58,8 @@ err = abs(pF2F(1) - pF2F(2))
 
 IF (err .GT. EPS) CALL terminate("PIN F2F")
 
-IF (keff(1) .LT. EPS) CALL terminate("K-EFF")
-IF (keff(2) .LT. EPS) CALL terminate("K-EFF")
+!IF (keff(1) .LT. EPS) CALL terminate("K-EFF")
+!IF (keff(2) .LT. EPS) CALL terminate("K-EFF")
 WRITE (*, '(18X, A18, F7.5)')       'Reference k-eff : ',       keff(MP(plotobj))
 WRITE (*, '(18X, A18, F7.5)')       'Test      k-eff : ',       keff(plotobj)
 WRITE (*, '(12X, A24, I5, X, A5/)') 'Reactivity Difference : ', int(100000.*(1./keff(MP(plotobj)) - 1./keff(plotobj))), '(pcm)'
