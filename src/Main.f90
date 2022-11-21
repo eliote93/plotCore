@@ -10,7 +10,9 @@ INTEGER :: ierr
 fdir   = 'C:\Users\user\Documents\MATLAB\'
 numthr = 6
 
+CALL default
 CALL readinp
+CALL chkinp
 CALL readobj(1)
 CALL readobj(2)
 CALL chkobj

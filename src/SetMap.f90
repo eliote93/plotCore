@@ -49,8 +49,8 @@ x0 = [-HALF, HALF,  ONE,  HALF, -HALF, -ONE]
 y0 = [ HALF, HALF, ZERO, -HALF, -HALF, ZERO]
 
 pPch = qF2F / SQ3
-x0   = x0 * pPch
-y0   = y0 * qF2F
+x0   = x0*pPch
+y0   = y0*qF2F
 
 CALL dmalloc(ptmap, 2, 6, nxy(iobj))
 
@@ -103,12 +103,12 @@ xSW = [-HALF,  HALF,   ONE,  HALF,  HALF, HALF]
 ySW = [ HALF, -HALF,  ZERO,  HALF,  HALF, HALF]
 
 pPch = qF2F / SQ3
-x0   = x0  * pPch
-xNN  = xNN * pPch
-xSW  = xSW * pPch
-y0   = y0  * qF2F
-yNN  = yNN * qF2F
-ySW  = ySW * qF2F
+x0   = x0 *pPch
+xNN  = xNN*pPch
+xSW  = xSW*pPch
+y0   = y0 *qF2F
+yNN  = yNN*qF2F
+ySW  = ySW*qF2F
 
 CALL dmalloc(ptmap, 2, 6, nxy(iobj))
 
@@ -238,13 +238,13 @@ DO ixy = 1, nxy(iobj)
     
   IF (lrot(iobj) .OR. ptmod(ixy).GT.0) THEN
     DO idir = 2, ndir
-      theta = (idir - 1) * PI / 3.
+      theta = (idir - 1)*PI / 3.
       
       CALL rotpt(theta, x0, y0, x1(idir), y1(idir))
     END DO
   ELSE
     DO idir = 2, ndir
-      theta = (idir - 2) * PI / 3.
+      theta = (idir - 2)*PI / 3.
       
       CALL refpt(theta, x1(idir-1), y1(idir-1), x1(idir), y1(idir))
     END DO

@@ -45,7 +45,7 @@ END SUBROUTINE setidxmap
 ! --------------------------------------------------------------------------------------------------
 FUNCTION chksamepts(x1, y1, x2, y2)
 
-USE param, ONLY : TRUE, FALSE, EPS
+USE param, ONLY : TRUE, FALSE, EPS7
 
 IMPLICIT NONE
 
@@ -58,7 +58,7 @@ chksamepts = FALSE
 del = (x1 - x2)*(x1 - x2) + (y1 - y2)*(y1 - y2)
 del = sqrt(del)
 
-IF (del .GT. EPS) RETURN
+IF (del .GT. EPS7) RETURN
 
 chksamepts = TRUE
 ! ------------------------------------------------
@@ -67,25 +67,25 @@ END FUNCTION chksamepts
 ! --------------------------------------------------------------------------------------------------
 SUBROUTINE rotpt(theta, x1, y1, x2, y2)
 
-USE param, ONLY : EPS, ZERO
+USE param, ONLY : EPS7, ZERO
 
 IMPLICIT NONE
 
 REAL :: x1, y1, x2, y2, theta
 ! ------------------------------------------------
 
-x2 = x1 * cos(theta) - y1 * sin(theta)
-y2 = x1 * sin(theta) + y1 * cos(theta)
+x2 = x1*cos(theta) - y1*sin(theta)
+y2 = x1*sin(theta) + y1*cos(theta)
 
-IF (abs(x2) .LT. EPS) x2 = ZERO
-IF (abs(y2) .LT. EPS) y2 = ZERO
+IF (abs(x2) .LT. EPS7) x2 = ZERO
+IF (abs(y2) .LT. EPS7) y2 = ZERO
 ! ------------------------------------------------
 
 END SUBROUTINE rotpt
 ! --------------------------------------------------------------------------------------------------
 SUBROUTINE refpt(theta, x1, y1, x2, y2)
 
-USE param, ONLY : PI, EPS, ZERO
+USE param, ONLY : PI, EPS7, ZERO
 
 IMPLICIT NONE
 
@@ -94,13 +94,13 @@ REAL :: x1, y1, x2, y2, theta, tx, ty, tt
 
 tx = cos(theta)
 ty = sin(theta)
-tt = tx * x1 + ty * y1
+tt = tx*x1 + ty*y1
 
-x2 = 2. * tx * tt - x1
-y2 = 2. * ty * tt - y1
+x2 = 2.*tx*tt - x1
+y2 = 2.*ty*tt - y1
 
-IF (abs(x2) .LT. EPS) x2 = ZERO
-IF (abs(y2) .LT. EPS) y2 = ZERO
+IF (abs(x2) .LT. EPS7) x2 = ZERO
+IF (abs(y2) .LT. EPS7) y2 = ZERO
 ! ------------------------------------------------
 
 END SUBROUTINE refpt

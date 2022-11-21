@@ -31,6 +31,7 @@
 		<File RelativePath=".\src\CalPowErr_int.f90"/>
 		<File RelativePath=".\src\ChkObj.f90"/>
 		<File RelativePath=".\src\Data.f90"/>
+		<File RelativePath=".\src\default.f90"/>
 		<File RelativePath=".\src\dmalloc.f90"/>
 		<File RelativePath=".\src\EditOut.f90"/>
 		<File RelativePath=".\src\Main.f90"/>

@@ -36,7 +36,7 @@ CALL dmalloc(ref,   mxy)
 ! SET : Obj. Pow.
 DO ixy = 1, mxy
   DO iz = 1, nz
-    idat = ixy + mxy * (iz-1)
+    idat = ixy + mxy*(iz-1)
     
     xyobj(ixy) = xyobj(ixy) + locdat(idat)%pow
   END DO
@@ -47,7 +47,7 @@ xyobj = xyobj / (sum(xyobj) / real(mxy)) ! Norm.
 ! SET : Sub. Pow.
 DO ixy = 1, lxy
   DO iz = 1, nz
-    idat = ixy + lxy * (iz-1)
+    idat = ixy + lxy*(iz-1)
     
     xysub(ixy) = xysub(ixy) + mocdat(idat)%pow
   END DO
@@ -71,14 +71,14 @@ END DO
 !$OMP END PARALLEL
 
 rnrm = real(mxy) / sum(ref)
-ref  = ref * rnrm ! Norm.
+ref  = ref*rnrm ! Norm.
 
 ! CAL : Err.
 !$OMP PARALLEL PRIVATE(ixy) NUM_THREADS(numthr)
 !$OMP DO SCHEDULE(GUIDED)
 DO ixy = 1, mxy
-  powerr(ixy, 0, ERRABS) = 100. * (xyobj(ixy) - ref(ixy))
-  powerr(ixy, 0, ERRREL) = 100. * (xyobj(ixy) - ref(ixy)) / ref(ixy)
+  powerr(ixy, 0, ERRABS) = 100.*(xyobj(ixy) - ref(ixy))
+  powerr(ixy, 0, ERRREL) = 100.*(xyobj(ixy) - ref(ixy)) / ref(ixy)
 END DO
 !$OMP END DO
 !$OMP END PARALLEL
@@ -90,7 +90,7 @@ DO ierr = 1, 2
   xymax(ierr) = max(maxval(powerr(:, 0, ierr)), abs(minval(powerr(:, 0, ierr))))
   
   DO ixy = 1, mxy
-    xyrms(ierr) = xyrms(ierr) + powerr(ixy, 0, ierr) * powerr(ixy, 0, ierr)
+    xyrms(ierr) = xyrms(ierr) + powerr(ixy, 0, ierr)*powerr(ixy, 0, ierr)
   END DO
   
   xyrms(ierr) = sqrt(xyrms(ierr) / real(mxy))
@@ -109,11 +109,11 @@ totpow = ZERO
 
 DO iz = 1, nz
   DO ixy = 1, mxy
-    idat = ixy + mxy * (iz-1)
+    idat = ixy + mxy*(iz-1)
     
     zobj(iz) = zobj(iz) + locdat(idat)%pow
     
-    totpow = totpow + locdat(idat)%pow * hgt(iz) / avghgt
+    totpow = totpow + locdat(idat)%pow*hgt(iz) / avghgt
   END DO
 END DO
 
@@ -124,11 +124,11 @@ totpow = ZERO
 
 DO iz = 1, nz
   DO ixy = 1, lxy
-    idat = ixy + lxy * (iz-1)
+    idat = ixy + lxy*(iz-1)
     
     zsub(iz) = zsub(iz) + mocdat(idat)%pow
     
-    totpow = totpow + mocdat(idat)%pow * hgt(iz) / avghgt
+    totpow = totpow + mocdat(idat)%pow*hgt(iz) / avghgt
   END DO
 END DO
 
@@ -136,8 +136,8 @@ zsub = zsub / (totpow / real(nz))
 
 ! CAL : Err.
 DO iz = 1, nz
-  powerr(0, iz, ERRABS) = 100 * (zobj(iz) - zsub(iz))
-  powerr(0, iz, ERRREL) = 100 * (zobj(iz) - zsub(iz)) / zsub(iz)
+  powerr(0, iz, ERRABS) = 100*(zobj(iz) - zsub(iz))
+  powerr(0, iz, ERRREL) = 100*(zobj(iz) - zsub(iz)) / zsub(iz)
 END DO
 
 ! SUMM.
@@ -147,7 +147,7 @@ DO ierr = 1, 2
   axmax(ierr) = max(maxval(powerr(0, :, ierr)), abs(minval(powerr(0, :, ierr))))
   
   DO iz = 1, nz
-    axrms(ierr) = axrms(ierr) + powerr(0, iz, ierr) * powerr(0, iz, ierr)
+    axrms(ierr) = axrms(ierr) + powerr(0, iz, ierr)*powerr(0, iz, ierr)
   END DO
   
   axrms(ierr) = sqrt(axrms(ierr) / real(nz))

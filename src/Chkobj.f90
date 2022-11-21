@@ -1,6 +1,6 @@
 SUBROUTINE chkobj()
 
-USE param, ONLY : EPS, MP
+USE param, ONLY : EPS7, MP
 USE mdat,  ONLY : lerr, l3d, lHS, naRng, maRng, aoF2F, boF2F, MCpF2F, NTpF2F, RNpF2F, qF2F, MCnPin, NTnPin, RNnPin, mPin, ndat, nxy, nz, dat01, dat02, zlim, objcn, powdata_type, plotobj, keff
 
 IMPLICIT NONE
@@ -51,22 +51,20 @@ IF (naRng(1) .NE. naRng(2)) CALL terminate("ASY RING")
 IF (nPin(1)  .NE. nPin (2)) CALL terminate("PIN RING")
 
 err = abs(aoF2F(1) - aoF2F(2))
-
-IF (err .GT. EPS) CALL terminate("ASY F2F")
+IF (err .GT. EPS7) CALL terminate("ASY F2F")
 
 err = abs(pF2F(1) - pF2F(2))
+IF (err .GT. EPS7) CALL terminate("PIN F2F")
 
-IF (err .GT. EPS) CALL terminate("PIN F2F")
-
-!IF (keff(1) .LT. EPS) CALL terminate("K-EFF")
-!IF (keff(2) .LT. EPS) CALL terminate("K-EFF")
+!IF (keff(1) .LT. EPS7) CALL terminate("K-EFF")
+!IF (keff(2) .LT. EPS7) CALL terminate("K-EFF")
+err = 100000.*(1./keff(MP(plotobj)) - 1./keff(plotobj))
 WRITE (*, '(18X, A18, F7.5)')       'Reference k-eff : ',       keff(MP(plotobj))
 WRITE (*, '(18X, A18, F7.5)')       'Test      k-eff : ',       keff(plotobj)
-WRITE (*, '(12X, A24, I5, X, A5/)') 'Reactivity Difference : ', int(100000.*(1./keff(MP(plotobj)) - 1./keff(plotobj))), '(pcm)'
+WRITE (*, '(12X, A24, I5, X, A5/)') 'Reactivity Difference : ', int(err), '(pcm)'
 ! ------------------------------------------------
 IF (.NOT. l3d)  RETURN
-
-IF (abs(zlim) .LT. EPS) CALL terminate("AXIAL ERROR LEGEND")
+IF (abs(zlim) .LT. EPS7) CALL terminate("AXIAL ERROR LEGEND")
 
 DO iobj = 1, 2
   SELECT CASE (iobj)
@@ -81,7 +79,7 @@ DO iobj = 1, 2
     ipy = locdat(ixy)%ipy
     
     DO iz = 2, nz
-      jxy = ixy + nxy(iobj) * (iz-1)
+      jxy = ixy + nxy(iobj)*(iz-1)
       
       jax = locdat(jxy)%iax
       jay = locdat(jxy)%iay

@@ -1,7 +1,7 @@
 SUBROUTINE readnTF(iobj, fn)
 
 USE allocs
-USE param, ONLY : DOT, BANG, BLANK, MAXNPIN, SLASH, ZERO, EPS, TRUE, oneline, probe
+USE param, ONLY : DOT, BANG, BLANK, MAXNPIN, SLASH, ZERO, TRUE, oneline, probe
 USE mdat,  ONLY : aoF2F, NTnpin, NTpF2F, lHS, nz, ndat, dat01, dat02, naRng, numthr, indev, l3d, lrot, hgt, avghgt, powdata_type, nxy, keff
 
 IMPLICIT NONE
@@ -276,7 +276,7 @@ IF (.NOT. l3d) THEN
   !$OMP PARALLEL PRIVATE(idat) NUM_THREADS(numthr)
   !$OMP DO SCHEDULE(GUIDED)
   DO idat = 1, NTndat
-    locdat(idat)%pow = locdat(idat)%pow * rnrm
+    locdat(idat)%pow = locdat(idat)%pow*rnrm
   END DO
   !$OMP END DO
   !$OMP END PARALLEL
@@ -286,7 +286,7 @@ ELSE
   DO idat = 1, NTndat
     iz = locdat(idat)%iz
     
-    locdat(idat)%pow = locdat(idat)%pow * rnrm * avghgt / hgt(iz) ! nTF Power is Volume-wise
+    locdat(idat)%pow = locdat(idat)%pow*rnrm*avghgt / hgt(iz) ! nTF Power is Volume-wise
   END DO
   !$OMP END DO
   !$OMP END PARALLEL

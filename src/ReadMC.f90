@@ -2,34 +2,46 @@
 SUBROUTINE readMC(iobj, ninp, fn)
 
 USE allocs
-USE param, ONLY : ONE
+USE param, ONLY : ONE, EPS7
+USE mdat,  ONLY : keff
 
 IMPLICIT NONE
 
 INTEGER :: iobj, ninp
 CHARACTER(*), INTENT(IN) :: fn
 ! ------------------------------------------------
-INTEGER :: iinp
+INTEGER :: iinp, nn
 REAL :: rMC
+REAL, DIMENSION(ninp) :: kk
 ! ------------------------------------------------
 
 rMC = ONE / real(ninp)
 
 ! 1st
-CALL readMC_1st(iobj, rMC, fn)
+CALL readMC_1st(iobj, rMC, kk(1), fn)
 
 ! 2nd
 DO iinp = 2, ninp
-  CALL readMC_2nd(iobj, iinp, rMC, fn)
+  CALL readMC_2nd(iobj, iinp, rMC, kk(iinp), fn)
 END DO
 
 ! FIN
+nn = 0
+DO iinp = 1, ninp
+  IF (kk(iinp) .LT. EPS7) CYCLE
+  
+  nn = nn + 1
+  keff(iobj) = keff(iobj) + kk(iinp)
+END DO
+IF (nn .EQ. 0) CALL warning("EMPTY K-EFF VALUE IN MC")
+keff(iobj) = keff(iobj) / real(nn)
+
 CALL calMCstd(iobj)
 ! ------------------------------------------------
 
 END SUBROUTINE readMC
 ! --------------------------------------------------------------------------------------------------
-SUBROUTINE readMC_1st(iobj, rMC, fn)
+SUBROUTINE readMC_1st(iobj, rMC, kk, fn)
 
 USE allocs
 USE param, ONLY : SQ3, DOT, BANG, BLANK, ASTR, ZERO, TRUE, oneline, probe
@@ -38,7 +50,7 @@ USE mdat,  ONLY : l3d, ndat, dat01, dat02, naRng, numthr, MCpF2F, aoF2F, MCnPin,
 IMPLICIT NONE
 
 INTEGER :: iobj
-REAL :: rMC
+REAL :: rMC, kk
 CHARACTER(*), INTENT(IN) :: fn
 ! ------------------------------------------------
 CHARACTER*10  :: cn
@@ -64,6 +76,11 @@ ndat(iobj) = 0
 
 DO
   READ (indev, '(A512)', END = 1000) oneline
+  IF (oneline(9:51) .EQ. 'Collision/Absorption/Track Length Estimator') THEN
+    READ (indev, '(A512)', END = 1000) oneline
+    READ (oneline, *) cn, cn, cn, kk
+    CYCLE
+  END IF
   
   IF (probe .EQ. DOT)   EXIT
   IF (probe .EQ. BANG)  CYCLE
@@ -73,35 +90,30 @@ DO
   CALL toupper(cn)
   
   nchr = fndndata(oneline)
-  
   IF (cn.EQ.ASTR .AND. nchr.EQ.4) THEN
     READ (oneline, *) cn, cn, cn
     
     SELECT CASE (cn)
       CASE ('PIN_F2F'); READ (oneline, *) cn, cn, cn, MCpF2F(iobj)
-      CASE ('PIN_PCH'); READ (oneline, *) cn, cn, cn, tmp; MCpF2F(iobj) = tmp * SQ3
+      CASE ('PIN_PCH'); READ (oneline, *) cn, cn, cn, tmp; MCpF2F(iobj) = tmp*SQ3
       CASE ('ASY_F2F'); READ (oneline, *) cn, cn, cn, aoF2F(iobj)
-      CASE ('ASY_PCH'); READ (oneline, *) cn, cn, cn, tmp; aoF2F (iobj) = tmp * SQ3
+      CASE ('ASY_PCH'); READ (oneline, *) cn, cn, cn, tmp; aoF2F (iobj) = tmp*SQ3
     END SELECT
   END IF
   
   IF (cn .NE. '*CELL') CYCLE
   
   READ (oneline, *) cdum, cdum, cdum
-  
   CALL fndchr(cdum, ipos, nchr, '_')
-  
   IF (nchr .LT. 4) CYCLE
   
   ndat(iobj) = ndat(iobj) + 1
 END DO
 
 1000 CONTINUE
-
 REWIND (indev)
 
 MCndat = ndat(iobj)
-
 SELECT CASE (iobj)
 CASE (1); ALLOCATE (dat01 (MCndat)); locdat => dat01; CALL dmalloc(MCstd01, MCndat); locstd => MCstd01
 CASE (2); ALLOCATE (dat02 (MCndat)); locdat => dat02; CALL dmalloc(MCstd02, MCndat); locstd => MCstd02
@@ -129,9 +141,7 @@ DO
   IF (cn .NE. '*CELL') CYCLE
   
   READ (oneline, *) cdum, cdum, cdum
-  
   CALL fndchr(cdum, ipos, nchr, '_')
-  
   IF (nchr .LT. 4) CYCLE
   
   ! READ
@@ -156,9 +166,7 @@ DO
   
   ! Pow. + Std. Dev.
   CALL fndchr(oneline, ipos, nchr, '=')
-  
   oneline = oneline(ipos(1)+1:)
-  
   READ (oneline, *) locpow, cdum, cdum, cdum, tmp
   
   ! CnP
@@ -169,7 +177,7 @@ DO
   locdat(MCndat)%ipx = ipx
   locdat(MCndat)%ipy = ipy
   
-  locstd(MCndat) = tmp * rMC * 100._8
+  locstd(MCndat) = tmp*rMC*100._8
   
   ! Process
   nminax = min(nminax, iax)
@@ -214,16 +222,16 @@ ELSE
   DO idat = 1, MCndat
     iz = locdat(idat)%iz
     
-    totpow = totpow + locdat(idat)%pow * hgt(iz) / avghgt
+    totpow = totpow + locdat(idat)%pow*hgt(iz) / avghgt
   END DO
 END IF
 
-rnrm = rMC * real(MCndat) / totpow
+rnrm = rMC*real(MCndat) / totpow
 
 !$OMP PARALLEL PRIVATE(idat) NUM_THREADS(numthr)
 !$OMP DO SCHEDULE(GUIDED)
 DO idat = 1, MCndat
-  locdat(idat)%pow = locdat(idat)%pow * rnrm ! McCARD Power is Point-wise
+  locdat(idat)%pow = locdat(idat)%pow*rnrm ! McCARD Power is Point-wise
 END DO
 !$OMP END DO
 !$OMP END PARALLEL
@@ -234,7 +242,7 @@ NULLIFY (locstd)
 
 END SUBROUTINE readMC_1st
 ! --------------------------------------------------------------------------------------------------
-SUBROUTINE readMC_2nd(iobj, iinp, rMC, fn)
+SUBROUTINE readMC_2nd(iobj, iinp, rMC, kk, fn)
 
 USE allocs
 USE param, ONLY : BLANK, ZERO, DOT, BANG, TRUE, oneline, probe
@@ -243,7 +251,7 @@ USE mdat,  ONLY : l3d, indev, hgt, numthr, dat01, dat02, MCstd01, MCstd02, avghg
 IMPLICIT NONE
 
 INTEGER :: iobj, iinp
-REAL :: rMC
+REAL :: rMC, kk
 CHARACTER(*), INTENT(IN) :: fn
 ! ------------------------------------------------
 CHARACTER*10  :: cn
@@ -280,6 +288,11 @@ END SELECT
 
 DO
   READ (indev, '(A512)', END = 3000) oneline
+  IF (oneline(9:51) .EQ. 'Collision/Absorption/Track Length Estimator') THEN
+    READ (indev, '(A512)', END = 3000) oneline
+    READ (oneline, *) cn, cn, cn, kk
+    CYCLE
+  END IF
   
   IF (probe .EQ. DOT)   EXIT
   IF (probe .EQ. BANG)  CYCLE
@@ -291,25 +304,20 @@ DO
   IF (cn .NE. '*CELL') CYCLE
   
   READ (oneline, *) cdum, cdum, cdum
-  
   CALL fndchr(cdum, ipos, nchr, '_')
-  
   IF (nchr .LT. 4) CYCLE
   
   ! READ
   MCndat = MCndat + 1
   
   CALL fndchr(oneline, ipos, nchr, '=')
-  
   oneline = oneline(ipos(1)+1:)
-  
   READ (oneline, *) tmppow(MCndat), cdum, cdum, cdum, tmp
   
-  locstd(MCndat) = locstd(MCndat) + tmp * rMC * 100._8
+  locstd(MCndat) = locstd(MCndat) + tmp*rMC*100._8
 END DO
 
 3000 CONTINUE
-
 CLOSE (indev)
 
 IF (ndat(iobj) .NE. MCndat) CALL terminate("MC 2nd")
@@ -324,16 +332,16 @@ ELSE
   DO idat = 1, MCndat
     iz = locdat(idat)%iz
     
-    totpow = totpow + tmppow(idat) * hgt(iz) / avghgt
+    totpow = totpow + tmppow(idat)*hgt(iz) / avghgt
   END DO
 END IF
 
-rnrm = rMC * real(MCndat) / totpow
+rnrm = rMC*real(MCndat) / totpow
 
 !$OMP PARALLEL PRIVATE(idat) NUM_THREADS(numthr)
 !$OMP DO SCHEDULE(GUIDED)
 DO idat = 1, MCndat
-  locdat(idat)%pow = locdat(idat)%pow + tmppow(idat) * rnrm
+  locdat(idat)%pow = locdat(idat)%pow + tmppow(idat)*rnrm
 END DO
 !$OMP END DO
 !$OMP END PARALLEL
@@ -376,12 +384,12 @@ DO idat = 1, ndat(iobj)
   iz = locdat(idat)%iz
   
   maxstdrel = max(maxstdrel, locstd(idat))
-  rmsstdrel = rmsstdrel + locstd(idat) * locstd(idat) * hgt(iz) / avghgt
+  rmsstdrel = rmsstdrel + locstd(idat)*locstd(idat)*hgt(iz) / avghgt
   
-  tmpabs = locstd(idat) * locdat(idat)%pow
+  tmpabs = locstd(idat)*locdat(idat)%pow
   
   maxstdabs = max(maxstdabs, tmpabs)
-  rmsstdabs = rmsstdabs + tmpabs * tmpabs * hgt(iz) / avghgt
+  rmsstdabs = rmsstdabs + tmpabs*tmpabs*hgt(iz) / avghgt
 END DO
 
 rmsstdrel = rmsstdrel / real(ndat(iobj))
@@ -391,6 +399,7 @@ WRITE (*, '(A31, F5.2, X, A3)') 'MC Power Std. Dev. Max. Rel. : ', maxstdrel, '(
 WRITE (*, '(A31, F5.2, X, A3)') 'MC Power Std. Dev. RMS  Rel. : ', rmsstdrel, '(%)'
 WRITE (*, '(A31, F5.2, X, A3)') 'MC Power Std. Dev. Max. Abs. : ', maxstdabs, '(%)'
 WRITE (*, '(A31, F5.2, X, A3)') 'MC Power Std. Dev. RMS  Abs. : ', rmsstdabs, '(%)'
+WRITE (*, *)
 
 NULLIFY (locdat)
 NULLIFY (locstd)

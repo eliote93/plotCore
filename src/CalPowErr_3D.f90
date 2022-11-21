@@ -20,14 +20,6 @@ CALL dmalloc0(xyzrms, 0, nz, 1, 2)
 
 IF (.NOT. lerr) RETURN
 
-mxy = nxy(plotobj)
-
-CALL dmalloc0(powerr, 0, mxy, 0, nz, 1, 2)
-
-CALL dmalloc(ref, ndat(plotobj))
-
-jobj = MP(plotobj)
-
 SELECT CASE (plotobj)
 CASE (1); locdat => dat01; mocdat => dat02
 CASE (2); locdat => dat02; mocdat => dat01
@@ -35,16 +27,20 @@ END SELECT
 ! ------------------------------------------------
 !            01. SET : Ref.
 ! ------------------------------------------------
+mxy  = nxy(plotobj)
+jobj = MP(plotobj)
+CALL dmalloc(ref, ndat(plotobj))
+
 !$OMP PARALLEL PRIVATE(iz, ixy, idat, psum, jxy, kxy, jdat) NUM_THREADS(numthr)
 !$OMP DO SCHEDULE(GUIDED)
 DO iz = 1, nz
   DO ixy = 1, mxy
-    idat = ixy + mxy * (iz-1)
+    idat = ixy + mxy*(iz-1)
     psum = ZERO
     
     DO jxy = 1, xymap(0, ixy)
       kxy  = xymap(jxy, ixy)
-      jdat = kxy + nxy(jobj) * (iz-1)
+      jdat = kxy + nxy(jobj)*(iz-1)
       
       psum = psum + mocdat(jdat)%pow
     END DO
@@ -64,12 +60,12 @@ ELSE
   DO idat = 1, ndat(plotobj)
     iz = locdat(idat)%iz
     
-    psum = psum + ref(idat) * hgt(iz) / avghgt
+    psum = psum + ref(idat)*hgt(iz) / avghgt
   END DO
 END IF
 
 rnrm = real(ndat(plotobj)) / psum
-ref = ref * rnrm
+ref = ref*rnrm
 ! ------------------------------------------------
 !            02. DEBUG
 ! ------------------------------------------------
@@ -87,7 +83,7 @@ ref = ref * rnrm
 !
 !DO iz = 1, nz
 !  DO ixy = 1, nxy(2)
-!    idat = ixy + nxy(2) * (iz-1)
+!    idat = ixy + nxy(2)*(iz-1)
 !    
 !    WRITE (41, '(ES13.5)') dat02(idat)%pow
 !  END DO
@@ -98,14 +94,15 @@ ref = ref * rnrm
 ! ------------------------------------------------
 !            03. CAL : 3-D Err.
 ! ------------------------------------------------
+CALL dmalloc0(powerr, 0, mxy, 0, nz, 1, 2)
 !$OMP PARALLEL PRIVATE(iz, ixy, idat) NUM_THREADS(numthr)
 !$OMP DO SCHEDULE(GUIDED)
 DO iz = 1, nz
   DO ixy = 1, mxy
-    idat = ixy + mxy * (iz-1)
+    idat = ixy + mxy*(iz-1)
     
-    powerr(ixy, iz, ERRABS) = 100. * (locdat(idat)%pow - ref(idat))
-    powerr(ixy, iz, ERRREL) = 100. * (locdat(idat)%pow - ref(idat)) / ref(idat)
+    powerr(ixy, iz, ERRABS) = 100.*(locdat(idat)%pow - ref(idat))
+    powerr(ixy, iz, ERRREL) = 100.*(locdat(idat)%pow - ref(idat)) / ref(idat)
   END DO
 END DO
 !$OMP END DO
@@ -119,7 +116,7 @@ DO iz = 1, nz
     xyzmax(iz, ierr) = max(maxval(powerr(:, iz, ierr)), abs(minval(powerr(:, iz, ierr))))
     
     DO ixy = 1, mxy
-      xyzrms(iz, ierr) = xyzrms(iz, ierr) + powerr(ixy, iz, ierr) * powerr(ixy, iz, ierr)
+      xyzrms(iz, ierr) = xyzrms(iz, ierr) + powerr(ixy, iz, ierr)*powerr(ixy, iz, ierr)
     END DO
     
     xyzrms(iz, ierr) = sqrt(xyzrms(iz, ierr) / real(mxy))
@@ -134,7 +131,7 @@ DO ierr = 1, 2
   
   DO iz = 1, nz
     DO ixy = 1, mxy
-      xyztotrms(ierr) = xyztotrms(ierr) + powerr(ixy, iz, ierr) * powerr(ixy, iz, ierr)
+      xyztotrms(ierr) = xyztotrms(ierr) + powerr(ixy, iz, ierr)*powerr(ixy, iz, ierr)
     END DO
   END DO
   

@@ -8,7 +8,7 @@ CHARACTER*2   :: objcn(2)
 CHARACTER*100 :: fdir, objfn(2)
 
 LOGICAL :: l02, lerr, l3d
-LOGICAL :: lbndy = FALSE ! Print Only 4 Points
+LOGICAL :: lbndy ! Print Only 4 Points
 
 LOGICAL, DIMENSION(2) :: lHS, lrot
 ! ------------------------------------------------

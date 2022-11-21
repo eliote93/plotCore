@@ -1,16 +1,17 @@
-ID_01        NT / V4_3D_HS_ND
-ID_02        NT / V4_3D_HS_YD
+ID_01        MC / C5G7 H FC 3D RB 20M
+ID_02        NT / RB GM
+NUM_01       3
 plot_Err     T  2 ! Err. = plot obj - other obj
 xylim        2.
 zlim         1.
 
-bench        RAD_V-4.4_HS_ERR
+bench_rad    CH_HS_ERR
 !tpos_2d      100 -105
 !tsize_2d     20
 !gcf_2d       500 100 1085 860
 !gca_2d       0.13 0.11 0.72 0.90
 
-bench       AX_V-4.4_ERR
+bench_ax     CH_ERR
 !hgt          12*20.83333333333333
 !tpos_1d      30 0.
 !tsize_1d     30
@@ -19,13 +20,13 @@ bench       AX_V-4.4_ERR
 .
 
 ! RAD
-! C5G7 H : HS/FS ERR, FS MC
-! V-4.4 : HS/FS Err
-! V-10 : HS/FS Err, FS MC
+! CH : HS/FS ERR, FS MC
+! V4 : HS/FS Err
+! V10 : HS/FS Err, FS MC
 ! BCN : ERR/POW
 
 ! AX
-! C5G7 H : ERR/MC
-! V-4.4 : ERR
-! V-10 : ORG/SMP ERR/MC
+! CH : ERR/MC
+! V4 : ERR
+! V10 : ORG/SMP ERR/MC
 ! BCN : ERR/POW

@@ -27,7 +27,7 @@ CALL dmalloc0(powerr, 0, nxy(plotobj), 0, nz, 1, 1)
 !$OMP DO SCHEDULE(GUIDED)
 DO iz = 1, nz
   DO ixy = 1, nxy(plotobj)
-    idat = ixy + nxy(plotobj) * (iz-1)
+    idat = ixy + nxy(plotobj)*(iz-1)
     
     powerr(ixy, iz, 1) = locdat(idat)%pow
   END DO
@@ -43,10 +43,10 @@ WRITE (*, '(A27, F7.2)') '3-D Power Peaking Factor : ', xyztotpf
 ! ------------------------------------------------
 DO ixy = 1, nxy(plotobj)
   DO iz = 1, nz
-    idat = ixy + nxy(plotobj) * (iz-1)
+    idat = ixy + nxy(plotobj)*(iz-1)
     
     powerr(ixy, 0, 1) = powerr(ixy, 0, 1) + powerr(ixy, iz, 1)
-    powerr(0,  iz, 1) = powerr(0,  iz, 1) + powerr(ixy, iz, 1) * hgt(iz) / avghgt
+    powerr(0,  iz, 1) = powerr(0,  iz, 1) + powerr(ixy, iz, 1)*hgt(iz) / avghgt
   END DO
 END DO
 
@@ -71,7 +71,7 @@ NULLIFY (locdat)
 !  DO idat = 1, ndat(iobj)
 !    iz = locdat(idat)%iz
 !    
-!    axpow(iz, iobj) = axpow(iz, iobj) + locdat(idat)%pow * hgt(iz) / avghgt
+!    axpow(iz, iobj) = axpow(iz, iobj) + locdat(idat)%pow*hgt(iz) / avghgt
 !  END DO
 !  
 !  axpow(:, iobj) = axpow(:, iobj) / (sum(axpow(1:nz, iobj)) / real(nz))

@@ -1,7 +1,7 @@
 SUBROUTINE readRNSS(iobj, fn)
 
 USE allocs
-USE param, ONLY : BANG, BLANK, MAXNPIN, SLASH, ZERO, EPS, TRUE, SQ3, oneline, probe
+USE param, ONLY : BANG, BLANK, MAXNPIN, SLASH, ZERO, TRUE, SQ3, oneline, probe
 USE mdat,  ONLY : aoF2F, RNnpin, RNpF2F, lHS, nz, ndat, dat01, dat02, naRng, indev, lrot, powdata_type, nxy
 
 IMPLICIT NONE
@@ -47,7 +47,7 @@ DO
     END DO
     
     RNnPin(iobj) = fndndata(oneline)
-    RNpF2F(iobj) = 2. * SQ3 * aoF2F(iobj) / 3. / (2*RNnPin(iobj))
+    RNpF2F(iobj) = 2.*SQ3*aoF2F(iobj) / 3. / (2*RNnPin(iobj))
   END IF
 END DO
 

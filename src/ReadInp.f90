@@ -1,9 +1,10 @@
+! --------------------------------------------------------------------------------------------------
 SUBROUTINE readinp
 ! READ : 'plotCore.inp'
 
 USE allocs
-USE param, ONLY : DOT, BANG, BLANK, SLASH, TRUE, FALSE, ZERO, MP, oneline, probe
-USE mdat,  ONLY : l3d, l02, objcn, objfn, ninp, lerr, plotobj, xstr2d, ystr2d, nsize2d, xstr1d, ystr1d, nsize1d, indev, gcf2d, gca2d, gcf1d, gca1d, nz, hgt, avghgt, xylim, zlim, nerr, keff
+USE param, ONLY : DOT, BANG, BLANK, SLASH, TRUE, FALSE, ZERO, oneline, probe
+USE mdat,  ONLY : l3d, l02, objcn, objfn, ninp, lerr, plotobj, xstr2d, ystr2d, nsize2d, xstr1d, ystr1d, nsize1d, indev, gcf2d, gca2d, gcf1d, gca1d, nz, hgt, avghgt, xylim, zlim, keff
 
 IMPLICIT NONE
 
@@ -24,9 +25,7 @@ zlim  = ZERO
 keff  = ZERO
 
 INQUIRE (FILE = fn, EXIST = lext)
-
 IF (.NOT.lext) CALL terminate("FILE DOES NOT EXIST - " // fn)
-
 OPEN (indev, FILE = fn)
 
 DO
@@ -44,22 +43,16 @@ DO
   SELECT CASE (cn)
   CASE ('ID_01')
     READ  (oneline, *) cn, objcn(1)
-    
     CALL fndchr(oneline, ipos, nchr, SLASH)
-    
     objfn(1) = oneline(ipos(1)+1:lgh)
-    
     CALL rmvremainder(objfn(1))
     
   CASE ('ID_02')
     l02 = TRUE
     
     READ  (oneline, *) cn, objcn(2)
-    
     CALL fndchr(oneline, ipos, nchr, SLASH)
-    
     objfn(2) = oneline(ipos(1)+1:lgh)
-    
     CALL rmvremainder(objfn(2))
     
   CASE ('NUM_01')
@@ -71,8 +64,11 @@ DO
   CASE ('PLOT_ERR')
     READ (oneline, *) cn, lerr, plotobj
   
-  CASE ('BENCH')
-    CALL readbench(oneline)
+  CASE ('BENCH_RAD')
+    CALL readbench_rad(oneline)
+    
+  CASE ('BENCH_AX')
+    CALL readbench_ax(oneline)
     
   CASE ('TPOS_1D')
     READ (oneline, *) cn, xstr1d, ystr1d
@@ -101,7 +97,6 @@ DO
   CASE ('HGT')
     ndat = fndndata(oneline)-1
     tmp1 = BLANK
-    
     READ (oneline, *, END = 500) cn, tmp1
     
     500 CONTINUE
@@ -113,11 +108,9 @@ DO
     END DO
     
     nz = idat-1
-    
     CALL dmalloc(hgt, nz)
-    
     READ (oneline, *) cn, hgt(1:nz)
-  
+    
   CASE ('XYLIM')
     READ (oneline, *) cn, xylim
   
@@ -130,17 +123,28 @@ DO
 END DO
 
 1000 CONTINUE
-! ------------------------------------------------
+
 IF (probe .NE. DOT) CALL terminate("INPUT MUST END WITH DOT")
 
 CLOSE (indev)
+! ------------------------------------------------
 
-! CHK : plot mod
+END SUBROUTINE readinp
+! --------------------------------------------------------------------------------------------------
+SUBROUTINE chkinp
+
+USE allocs
+USE param, ONLY : MP
+USE mdat,  ONLY : l3d, l02, objcn, lerr, plotobj, nz, hgt, avghgt, nerr, ninp
+
+IMPLICIT NONE
+
+INTEGER :: iobj
+! ------------------------------------------------
+
 IF (.NOT.l02 .AND. plotobj.EQ.2) CALL terminate("WRONG PLOTTING OBJECT")
-
 IF (lerr .AND. objcn(plotobj).EQ.'MC' .AND. objcn(MP(plotobj)).EQ.'NT') CALL terminate("WRONG PLOTTING OBJECT")
 
-! Basic
 l3d = nz .GT. 1
 
 IF (.NOT. associated(hgt)) CALL dmalloc1(hgt, 1)
@@ -149,6 +153,14 @@ avghgt = sum(hgt(1:nz)) / nz
 
 nerr = 1
 IF (lerr) nerr = 2
+
+DO iobj = 1, 2
+  IF (iobj.EQ.2 .AND. .NOT.l02) CYCLE
+  IF (ninp(iobj) .NE. 0) CYCLE
+  
+  ninp(iobj) = 1
+  IF (objcn(iobj) .EQ. 'MC') CALL warning("# OF MC INP IS NOT INPUTTED")
+END DO
 ! ------------------------------------------------
 
-END SUBROUTINE readinp
+END SUBROUTINE chkinp
